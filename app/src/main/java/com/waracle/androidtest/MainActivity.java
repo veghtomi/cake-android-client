@@ -239,6 +239,8 @@ public class MainActivity extends AppCompatActivity {
 
             public void setItems(JSONArray items) {
                 mItems = items;
+
+                notifyDataSetChanged();
             }
         }
     }
