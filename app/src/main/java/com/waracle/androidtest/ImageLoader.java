@@ -3,7 +3,6 @@ package com.waracle.androidtest;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -35,11 +34,7 @@ public class ImageLoader {
         // Can you think of a way to improve loading of bitmaps
         // that have already been loaded previously??
 
-        try {
-            setImageView(imageView, convertToBitmap(loadImageData(url)));
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
-        }
+        new DownloadImageTask(imageView).execute(url);
     }
 
     private static byte[] loadImageData(String url) throws IOException {
