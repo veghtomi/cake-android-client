@@ -1,4 +1,4 @@
-package com.waracle.androidtest.adapter;
+package com.waracle.androidtest.view.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
