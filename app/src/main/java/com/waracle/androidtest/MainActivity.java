@@ -1,6 +1,5 @@
 package com.waracle.androidtest;
 
-import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -11,10 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import com.waracle.androidtest.adapter.CakeAdapter;
+import com.waracle.androidtest.model.Cake;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,12 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    private static String JSON_URL = "https://gist.githubusercontent.com/hart88/198f29ec5114a3ec3460/" +
-            "raw/8dd19a88f9b8d24c23d9960f3300d0c917a4f07c/cake.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         private static final String TAG = PlaceholderFragment.class.getSimpleName();
 
         private ListView mListView;
-        private MyAdapter mAdapter;
+        private CakeAdapter mAdapter;
 
         private CakesTask cakesTask;
 
@@ -96,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             super.onActivityCreated(savedInstanceState);
 
             // Create and set the list adapter.
-            mAdapter = new MyAdapter();
+            mAdapter = new CakeAdapter();
             mListView.setAdapter(mAdapter);
 
             // Load data from net.
@@ -130,17 +128,25 @@ public class MainActivity extends AppCompatActivity {
             return "UTF-8";
         }
 
-        private static class CakesTask extends AsyncTask<Void, Void, JSONArray> {
+        private static class CakesTask extends AsyncTask<Void, Void, List<Cake>> {
 
-            private MyAdapter adapter;
+            private static String JSON_URL = "https://gist.githubusercontent.com/hart88/198f29ec5114a3ec3460/" +
+                    "raw/8dd19a88f9b8d24c23d9960f3300d0c917a4f07c/cake.json";
 
-            public CakesTask(MyAdapter adapter) {
+            private static final String FIELD_TITLE_NAME = "title";
+            private static final String FIELD_DESCRIPTION_NAME = "desc";
+            private static final String FIELD_IMAGE_URL_NAME = "image";
+
+            private CakeAdapter adapter;
+
+            public CakesTask(CakeAdapter adapter) {
                 this.adapter = adapter;
             }
 
             @Override
-            protected JSONArray doInBackground(Void... voids) {
-                JSONArray result = null;
+            protected List<Cake> doInBackground(Void... voids) {
+                final List<Cake> resultCakeList = new ArrayList<>();
+                JSONArray jsonArray;
                 HttpURLConnection urlConnection = null;
                 try {
                     URL url = new URL(JSON_URL);
@@ -158,10 +164,20 @@ public class MainActivity extends AppCompatActivity {
                     String charset = parseCharset(urlConnection.getRequestProperty("Content-Type"));
 
                     // Convert byte array to appropriate encoded string.
-                    String jsonText = new String(bytes, charset);
-
                     // Read string as JSON.
-                    result = new JSONArray(jsonText);
+                    jsonArray = new JSONArray(new String(bytes, charset));
+
+                    JSONObject actualJson;
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        actualJson = jsonArray.getJSONObject(i);
+
+                        final String title = actualJson.getString(FIELD_TITLE_NAME);
+                        final String description = actualJson.getString(FIELD_DESCRIPTION_NAME);
+                        final String imageUrl = actualJson.getString(FIELD_IMAGE_URL_NAME);
+
+                        resultCakeList.add(new Cake(title, description, imageUrl));
+                    }
+
                 } catch (IOException | JSONException e) {
                     Log.e(TAG, e.getMessage());
 
@@ -171,76 +187,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                return result;
+                return resultCakeList;
             }
 
             @Override
-            protected void onPostExecute(JSONArray jsonArray) {
-                adapter.setItems(jsonArray);
-            }
-        }
-
-        private class MyAdapter extends BaseAdapter {
-
-            // Can you think of a better way to represent these items???
-            private JSONArray mItems;
-            private ImageLoader mImageLoader;
-
-            public MyAdapter() {
-                this(new JSONArray());
-            }
-
-            public MyAdapter(JSONArray items) {
-                mItems = items;
-                mImageLoader = new ImageLoader();
-            }
-
-            @Override
-            public int getCount() {
-                return mItems.length();
-            }
-
-            @Override
-            public Object getItem(int position) {
-                try {
-                    return mItems.getJSONObject(position);
-                } catch (JSONException e) {
-                    Log.e("", e.getMessage());
-                }
-                return null;
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-
-            @SuppressLint("ViewHolder")
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View root = inflater.inflate(R.layout.list_item_layout, parent, false);
-                if (root != null) {
-                    TextView title = (TextView) root.findViewById(R.id.title);
-                    TextView desc = (TextView) root.findViewById(R.id.desc);
-                    ImageView image = (ImageView) root.findViewById(R.id.image);
-                    try {
-                        JSONObject object = (JSONObject) getItem(position);
-                        title.setText(object.getString("title"));
-                        desc.setText(object.getString("desc"));
-                        mImageLoader.load(object.getString("image"), image);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                return root;
-            }
-
-            public void setItems(JSONArray items) {
-                mItems = items;
-
-                notifyDataSetChanged();
+            protected void onPostExecute(List<Cake> cakesToAdd) {
+                adapter.setItems(cakesToAdd);
             }
         }
     }
