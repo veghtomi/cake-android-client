@@ -1,6 +1,7 @@
 package com.waracle.androidtest;
 
 import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -78,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         private ListView mListView;
         private MyAdapter mAdapter;
 
+        private CakesTask cakesTask;
+
         public PlaceholderFragment() { /**/ }
 
         @Override
@@ -97,39 +100,15 @@ public class MainActivity extends AppCompatActivity {
             mListView.setAdapter(mAdapter);
 
             // Load data from net.
-            try {
-                JSONArray array = loadData();
-                mAdapter.setItems(array);
-            } catch (IOException | JSONException e) {
-                Log.e(TAG, e.getMessage());
-            }
+            cakesTask = new CakesTask(mAdapter);
+            cakesTask.execute();
         }
 
+        @Override
+        public void onStop() {
+            cakesTask.cancel(true);
 
-        private JSONArray loadData() throws IOException, JSONException {
-            URL url = new URL(JSON_URL);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-
-                // Can you think of a way to improve the performance of loading data
-                // using HTTP headers???
-
-                // Also, Do you trust any utils thrown your way????
-
-                byte[] bytes = StreamUtils.readUnknownFully(in);
-
-                // Read in charset of HTTP content.
-                String charset = parseCharset(urlConnection.getRequestProperty("Content-Type"));
-
-                // Convert byte array to appropriate encoded string.
-                String jsonText = new String(bytes, charset);
-
-                // Read string as JSON.
-                return new JSONArray(jsonText);
-            } finally {
-                urlConnection.disconnect();
-            }
+            super.onStop();
         }
 
         /**
@@ -149,6 +128,56 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             return "UTF-8";
+        }
+
+        private static class CakesTask extends AsyncTask<Void, Void, JSONArray> {
+
+            private MyAdapter adapter;
+
+            public CakesTask(MyAdapter adapter) {
+                this.adapter = adapter;
+            }
+
+            @Override
+            protected JSONArray doInBackground(Void... voids) {
+                JSONArray result = null;
+                HttpURLConnection urlConnection = null;
+                try {
+                    URL url = new URL(JSON_URL);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+
+                    // Can you think of a way to improve the performance of loading data
+                    // using HTTP headers???
+
+                    // Also, Do you trust any utils thrown your way????
+
+                    byte[] bytes = StreamUtils.readUnknownFully(in);
+
+                    // Read in charset of HTTP content.
+                    String charset = parseCharset(urlConnection.getRequestProperty("Content-Type"));
+
+                    // Convert byte array to appropriate encoded string.
+                    String jsonText = new String(bytes, charset);
+
+                    // Read string as JSON.
+                    result = new JSONArray(jsonText);
+                } catch (IOException | JSONException e) {
+                    Log.e(TAG, e.getMessage());
+
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                }
+
+                return result;
+            }
+
+            @Override
+            protected void onPostExecute(JSONArray jsonArray) {
+                adapter.setItems(jsonArray);
+            }
         }
 
         private class MyAdapter extends BaseAdapter {
