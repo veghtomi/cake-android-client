@@ -1,12 +1,21 @@
 [![Build Status](https://travis-ci.org/veghtomi/cake-android-client.svg?branch=master)](https://travis-ci.org/veghtomi/cake-android-client)
 
-Coding Test (fictitious)
+# Coding Test (fictitious)
 
+# Libraries I would have used
 
-***
+* Dagger 2 for dependency injection
+* RxJava for concurrency and threading
+* RecyclerView support library
+* Retrofit for network handling
+* Glide or Picassa for image handling
+* Gson for Json
+* ButterKnife
+* **Kotlin**
+
+# Description
+
 NOTE: PLEASE DO NOT USE THIRD PARTY LIBRARIES. However, feel free to state which third party libraries you might have used.
-***
-
 
 Attached you’ll find the code for a simple mobile app to browse cakes. The developer who wrote this code was a summer intern and unfortunately did not manage to finish the project.  The project compiles but the app crashes as soon as it runs.
 
