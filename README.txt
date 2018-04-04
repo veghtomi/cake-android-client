@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/veghtomi/cake-android-client.svg?branch=master)](https://travis-ci.org/veghtomi/cake-android-client)
+
 Coding Test (fictitious)
 
 
