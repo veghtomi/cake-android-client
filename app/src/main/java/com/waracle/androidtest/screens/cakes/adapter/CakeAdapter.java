@@ -1,4 +1,4 @@
-package com.waracle.androidtest.view.adapter;
+package com.waracle.androidtest.screens.cakes.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

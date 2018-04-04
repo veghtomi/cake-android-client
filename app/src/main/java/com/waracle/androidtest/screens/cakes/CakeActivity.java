@@ -1,4 +1,4 @@
-package com.waracle.androidtest.view;
+package com.waracle.androidtest.screens.cakes;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,15 +7,15 @@ import android.view.MenuItem;
 
 import com.waracle.androidtest.R;
 
-public class MainActivity extends AppCompatActivity {
+public class CakeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_cake);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, PlaceholderFragment.newInstance())
+                    .add(R.id.container, CakesFragment.newInstance())
                     .commit();
         }
     }

@@ -5,6 +5,9 @@ import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
+import com.waracle.androidtest.network.tasks.DownloadImageTask;
+import com.waracle.androidtest.util.StreamUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
