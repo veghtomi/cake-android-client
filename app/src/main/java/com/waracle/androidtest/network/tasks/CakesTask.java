@@ -1,18 +1,20 @@
-package com.waracle.androidtest;
+package com.waracle.androidtest.network.tasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.waracle.androidtest.model.Cake;
-import com.waracle.androidtest.view.adapter.CakeAdapter;
+import com.waracle.androidtest.network.Configuration;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,17 +24,10 @@ public class CakesTask extends AsyncTask<Void, Void, List<Cake>> {
 
     private static final String TAG = CakesTask.class.getSimpleName();
 
-    private static String JSON_URL = "https://gist.githubusercontent.com/hart88/198f29ec5114a3ec3460/" +
-            "raw/8dd19a88f9b8d24c23d9960f3300d0c917a4f07c/cake.json";
+    private OnItemsLoadedListener itemsLoadedListener;
 
-    private static final String FIELD_TITLE_NAME = "title";
-    private static final String FIELD_DESCRIPTION_NAME = "desc";
-    private static final String FIELD_IMAGE_URL_NAME = "image";
-
-    private CakeAdapter adapter;
-
-    public CakesTask(CakeAdapter adapter) {
-        this.adapter = adapter;
+    public CakesTask(OnItemsLoadedListener itemsLoadedListener) {
+        this.itemsLoadedListener = itemsLoadedListener;
     }
 
     @Override
@@ -41,31 +36,31 @@ public class CakesTask extends AsyncTask<Void, Void, List<Cake>> {
         JSONArray jsonArray;
         HttpURLConnection urlConnection = null;
         try {
-            URL url = new URL(JSON_URL);
+            URL url = new URL(Configuration.JSON_URL);
             urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
             // Can you think of a way to improve the performance of loading data
             // using HTTP headers???
 
-            // Also, Do you trust any utils thrown your way????
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder json = new StringBuilder();
 
-            byte[] bytes = StreamUtils.readUnknownFully(in);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                json.append(line)
+                        .append('\n');
+            }
 
-            // Read in charset of HTTP content.
-            String charset = parseCharset(urlConnection.getRequestProperty("Content-Type"));
-
-            // Convert byte array to appropriate encoded string.
-            // Read string as JSON.
-            jsonArray = new JSONArray(new String(bytes, charset));
+            jsonArray = new JSONArray(json.toString());
 
             JSONObject actualJson;
             for (int i = 0; i < jsonArray.length(); i++) {
                 actualJson = jsonArray.getJSONObject(i);
 
-                final String title = actualJson.getString(FIELD_TITLE_NAME);
-                final String description = actualJson.getString(FIELD_DESCRIPTION_NAME);
-                final String imageUrl = actualJson.getString(FIELD_IMAGE_URL_NAME);
+                final String title = actualJson.getString(Configuration.JSON_FIELD_TITLE_NAME);
+                final String description = actualJson.getString(Configuration.JSON_FIELD_DESCRIPTION_NAME);
+                final String imageUrl = actualJson.getString(Configuration.JSON_FIELD_IMAGE_URL_NAME);
 
                 resultCakeList.add(new Cake(title, description, imageUrl));
             }
@@ -84,14 +79,18 @@ public class CakesTask extends AsyncTask<Void, Void, List<Cake>> {
 
     @Override
     protected void onPostExecute(List<Cake> cakesToAdd) {
-        adapter.setItems(cakesToAdd);
+        itemsLoadedListener.onItemsLoaded(cakesToAdd);
+    }
+
+    public interface OnItemsLoadedListener {
+        void onItemsLoaded(List<Cake> newCakes);
     }
 
     /**
      * Returns the charset specified in the Content-Type of this header,
      * or the HTTP default (ISO-8859-1) if none can be found.
      */
-    public static String parseCharset(String contentType) {
+    private static String parseCharset(String contentType) {
         if (contentType != null) {
             String[] params = contentType.split(",");
             for (int i = 1; i < params.length; i++) {

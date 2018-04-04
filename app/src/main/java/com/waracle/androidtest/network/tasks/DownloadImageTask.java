@@ -1,4 +1,4 @@
-package com.waracle.androidtest;
+package com.waracle.androidtest.network.tasks;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
