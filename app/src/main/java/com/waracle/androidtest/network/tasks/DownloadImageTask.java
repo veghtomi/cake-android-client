@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
+import com.waracle.androidtest.util.ImageUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -41,11 +43,16 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
             final int responseCode = connection.getResponseCode();
 
-            if (responseCode == 200) {
-                InputStream inputStream = connection.getInputStream();
-                if (inputStream != null) {
-                    resultBitmap = BitmapFactory.decodeStream(inputStream);
-                }
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                resultBitmap = transformStreamToBitmap(connection.getInputStream());
+            } else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+                    responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+                final String newAddress = connection.getHeaderField("Location");
+                final URL newUrl = new URL(newAddress);
+
+                connection = (HttpURLConnection) newUrl.openConnection();
+
+                resultBitmap = transformStreamToBitmap(connection.getInputStream());
             }
 
         } catch (IOException e) {
@@ -56,6 +63,18 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
             }
         }
 
+        if (resultBitmap != null) {
+            ImageUtil.cacheImage(imageUrl, resultBitmap);
+        }
+
         return resultBitmap;
+    }
+
+    private Bitmap transformStreamToBitmap(InputStream inputStream) {
+        if (inputStream != null) {
+            return BitmapFactory.decodeStream(inputStream);
+        }
+
+        return null;
     }
 }

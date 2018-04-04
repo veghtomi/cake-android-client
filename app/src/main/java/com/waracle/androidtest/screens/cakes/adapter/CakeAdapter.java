@@ -7,9 +7,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.waracle.androidtest.ImageLoader;
 import com.waracle.androidtest.R;
 import com.waracle.androidtest.model.Cake;
+import com.waracle.androidtest.util.ImageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +17,9 @@ import java.util.List;
 public class CakeAdapter extends BaseAdapter {
 
     private final List<Cake> cakeList;
-    private final ImageLoader imageLoader;
 
     public CakeAdapter() {
         cakeList = new ArrayList<>();
-        imageLoader = new ImageLoader();
     }
 
     @Override
@@ -63,7 +61,7 @@ public class CakeAdapter extends BaseAdapter {
         viewHolder.description.setText(actualCake.getDescription());
 
         viewHolder.image.setImageBitmap(null);
-        imageLoader.load(actualCake.getImageUrl(), viewHolder.image);
+        ImageUtil.load(actualCake.getImageUrl(), viewHolder.image);
 
         return convertView;
     }
