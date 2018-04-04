@@ -19,12 +19,6 @@ public final class ImageUtil {
     private ImageUtil() {
     }
 
-    /**
-     * Simple function for loading a bitmap image from the web
-     *
-     * @param url       image url
-     * @param imageView view to set image too.
-     */
     public static void load(String url, ImageView imageView) {
         if (TextUtils.isEmpty(url)) {
             throw new InvalidParameterException("URL is empty!");

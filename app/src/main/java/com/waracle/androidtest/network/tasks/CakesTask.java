@@ -40,9 +40,6 @@ public class CakesTask extends AsyncTask<Void, Void, List<Cake>> {
             urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
-            // Can you think of a way to improve the performance of loading data
-            // using HTTP headers???
-
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             StringBuilder json = new StringBuilder();
 
@@ -84,24 +81,5 @@ public class CakesTask extends AsyncTask<Void, Void, List<Cake>> {
 
     public interface OnItemsLoadedListener {
         void onItemsLoaded(List<Cake> newCakes);
-    }
-
-    /**
-     * Returns the charset specified in the Content-Type of this header,
-     * or the HTTP default (ISO-8859-1) if none can be found.
-     */
-    private static String parseCharset(String contentType) {
-        if (contentType != null) {
-            String[] params = contentType.split(",");
-            for (int i = 1; i < params.length; i++) {
-                String[] pair = params[i].trim().split("=");
-                if (pair.length == 2) {
-                    if (pair[0].equals("charset")) {
-                        return pair[1];
-                    }
-                }
-            }
-        }
-        return "UTF-8";
     }
 }
