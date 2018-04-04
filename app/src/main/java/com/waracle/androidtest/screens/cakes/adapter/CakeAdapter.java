@@ -60,7 +60,7 @@ public class CakeAdapter extends BaseAdapter {
         viewHolder.title.setText(actualCake.getTitle());
         viewHolder.description.setText(actualCake.getDescription());
 
-        viewHolder.image.setImageBitmap(null);
+        viewHolder.image.setImageResource(R.drawable.ic_cake_placeholder);
         ImageUtil.load(actualCake.getImageUrl(), viewHolder.image);
 
         return convertView;
