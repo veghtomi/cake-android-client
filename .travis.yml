@@ -13,3 +13,7 @@ android:
 
 before_install:
 - yes | sdkmanager "platforms;android-27" # https://github.com/travis-ci/travis-ci/issues/8651
+- chmod +x gradlew
+
+script:
+  ./gradlew assembleDebug
