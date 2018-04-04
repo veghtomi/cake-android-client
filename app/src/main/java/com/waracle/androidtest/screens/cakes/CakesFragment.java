@@ -26,7 +26,6 @@ public class CakesFragment extends ListFragment implements CakesContract.View {
         super.onViewCreated(view, savedInstanceState);
 
         presenter = new CakesPresenter();
-        presenter.attach(this);
 
         adapter = new CakeAdapter();
         setListAdapter(adapter);
@@ -36,6 +35,7 @@ public class CakesFragment extends ListFragment implements CakesContract.View {
     public void onStart() {
         super.onStart();
 
+        presenter.attach(this);
         presenter.loadCakes();
     }
 
