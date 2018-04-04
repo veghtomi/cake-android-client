@@ -28,11 +28,12 @@
             style="?android:attr/textAppearanceListItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
             tools:text="Apple cinnamon teacake" />
 
         <TextView
             android:id="@+id/desc"
-            style="?android:attr/textAppearanceListItemSmall"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
